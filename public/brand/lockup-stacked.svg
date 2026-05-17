@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" width="360" height="200" role="img" aria-label="TuringTrade — stacked lockup">
+  <defs>
+    <filter id="g2" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.8" result="b"></feGaussianBlur>
+      <feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+    </filter>
+    <clipPath id="L2"><rect x="120" y="0" width="60" height="120"></rect></clipPath>
+    <clipPath id="R2"><rect x="180" y="0" width="60" height="120"></rect></clipPath>
+  </defs>
+
+  
+  <g transform="translate(120,0)">
+    <g clip-path="url(#L2)" transform="translate(0,0)"></g>
+  </g>
+  <g transform="translate(120,0)">
+    <g fill="none" stroke="#FF9500" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M60 14 C 46 12, 32 18, 24 30 C 16 38, 12 50, 18 60 C 12 70, 18 84, 30 92 C 40 102, 52 106, 60 106 L 60 14 Z" stroke-width="2.6" clip-path="url(#L2)"></path>
+      <path d="M44 28 C 38 36, 44 44, 40 52" stroke-width="1.6" clip-path="url(#L2)"></path>
+      <path d="M28 50 C 38 54, 44 62, 40 70" stroke-width="1.6" clip-path="url(#L2)"></path>
+      <path d="M30 78 C 40 80, 50 86, 48 96" stroke-width="1.6" clip-path="url(#L2)"></path>
+      <path d="M36 38 Q 42 46 50 52" stroke-width="1.1" opacity="0.9" clip-path="url(#L2)"></path>
+      <path d="M50 52 Q 44 60 34 66" stroke-width="1.1" opacity="0.9" clip-path="url(#L2)"></path>
+      <path d="M34 66 Q 44 74 50 84" stroke-width="1.1" opacity="0.9" clip-path="url(#L2)"></path>
+    </g>
+    <g fill="#FF9500" clip-path="url(#L2)">
+      <circle cx="36" cy="38" r="2.2"></circle><circle cx="50" cy="52" r="2.2"></circle>
+      <circle cx="34" cy="66" r="2.2"></circle><circle cx="50" cy="84" r="2.2"></circle>
+      <circle cx="22" cy="46" r="1.4"></circle><circle cx="26" cy="86" r="1.4"></circle>
+    </g>
+    <g fill="none" stroke="#7B5CFF" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M60 14 L 76 14 L 90 22 L 100 34 L 104 46 L 100 58 L 106 70 L 98 86 L 84 98 L 70 104 L 60 106 Z" stroke-width="2.6" clip-path="url(#R2)"></path>
+      <polyline points="68,30 76,30 80,38" stroke-width="1.4" clip-path="url(#R2)"></polyline>
+      <polyline points="80,38 90,38" stroke-width="1.4" clip-path="url(#R2)"></polyline>
+      <polyline points="84,50 84,60 76,64" stroke-width="1.4" clip-path="url(#R2)"></polyline>
+      <polyline points="76,64 76,76" stroke-width="1.4" clip-path="url(#R2)"></polyline>
+      <polyline points="68,86 78,86 84,92" stroke-width="1.4" clip-path="url(#R2)"></polyline>
+      <polyline points="92,54 96,58 96,68" stroke-width="1.4" clip-path="url(#R2)"></polyline>
+    </g>
+    <g clip-path="url(#R2)" fill="#0E1020" stroke="#7B5CFF" stroke-width="1.5">
+      <polygon points="80,46 84,44 88,46 88,50 84,52 80,50"></polygon>
+      <polygon points="72,76 76,74 80,76 80,80 76,82 72,80"></polygon>
+      <polygon points="92,68 96,66 100,68 100,72 96,74 92,72"></polygon>
+    </g>
+    <g clip-path="url(#R2)" fill="#7B5CFF">
+      <circle cx="84" cy="48" r="1.2"></circle><circle cx="76" cy="78" r="1.2"></circle>
+      <circle cx="96" cy="70" r="1.2"></circle><circle cx="90" cy="38" r="1.4"></circle>
+      <circle cx="68" cy="30" r="1.4"></circle>
+    </g>
+    <g filter="url(#g2)">
+      <line x1="60" y1="12" x2="60" y2="108" stroke="#00D4FF" stroke-width="2"></line>
+    </g>
+    <circle cx="60" cy="12" r="2.6" fill="#00D4FF"></circle>
+    <circle cx="60" cy="108" r="2.6" fill="#00D4FF"></circle>
+  </g>
+
+  
+  <g font-family="&#39;Space Grotesk&#39;, &#39;Inter&#39;, sans-serif" font-weight="700" font-size="32" letter-spacing="2.6">
+    <text x="79" y="172" fill="#FFFFFF">TURING</text>
+    <text x="200" y="172" fill="#00D4FF">TRADE</text>
+  </g>
+</svg>

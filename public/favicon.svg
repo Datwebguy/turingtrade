@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="TuringTrade favicon">
+  
+  <rect width="32" height="32" fill="#07080F"></rect>
+  
+  <rect x="3" y="3" width="12" height="26" fill="#FF9500"></rect>
+  
+  <path d="M17 3 H29 V29 H17 Z" fill="#7B5CFF"></path>
+  
+  <path d="M17 3 L29 3 L29 9 L25 9 L25 5 L17 5 Z" fill="#07080F" opacity="0.18"></path>
+  
+  <rect x="15" y="3" width="2" height="26" fill="#00D4FF"></rect>
+  <rect x="8" y="3" width="16" height="3" fill="#00D4FF"></rect>
+  
+  <rect x="14" y="1" width="4" height="2" fill="#00D4FF"></rect>
+  <rect x="14" y="29" width="4" height="2" fill="#00D4FF"></rect>
+</svg>

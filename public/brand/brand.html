@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TuringTrade · Brand</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07080F; --surface: #0E1020; --border: #1C2040;
+      --primary: #00D4FF; --human: #FF9500; --ai: #7B5CFF;
+      --text: #E8ECF0; --muted: #6B7A99; --success: #00FF88;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; margin: 0; }
+    .mono { font-family: 'Space Mono', monospace; }
+    .cut-br { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%); }
+    .glass { background: linear-gradient(180deg, rgba(14,16,32,0.85), rgba(14,16,32,0.6)); border: 1px solid var(--border); backdrop-filter: blur(8px); }
+    .pulse { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.7); opacity: 0.4; } }
+
+    .page { max-width: 1280px; margin: 0 auto; padding: 56px 32px 80px; position: relative; z-index: 1; }
+    .head { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid var(--border); margin-bottom: 40px; }
+    .head h1 { font-size: 52px; line-height: 1; }
+    .head .tag { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 8px; }
+    .head .sub { color: var(--muted); font-size: 14px; max-width: 460px; }
+
+    .section { margin-top: 56px; }
+    .section-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .section-head h2 { font-size: 18px; font-weight: 600; }
+    .section-head .num { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+    .section-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .specimen {
+      position: relative;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+    }
+    .specimen.light { background: #F4F5F8; }
+    .specimen.bg-bg  { background: #07080F; }
+    .specimen.bg-surface { background: #0E1020; }
+    .specimen img, .specimen svg { max-width: 100%; height: auto; }
+
+    .label {
+      position: absolute; top: 10px; left: 14px;
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .label.dark { color: #4d5a78; }
+    .label.right { left: auto; right: 14px; }
+    .label .dot { display: inline-block; width: 6px; height: 6px; background: var(--primary); margin-right: 6px; vertical-align: middle; }
+
+    .caption {
+      margin-top: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .caption b { color: var(--text); font-weight: 600; }
+
+    /* Color swatches */
+    .swatch { padding: 18px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 16px; min-height: 150px; justify-content: space-between; }
+    .swatch .chip { width: 100%; height: 64px; }
+    .swatch .meta { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+    .swatch .meta b { color: var(--text); display: block; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; font-size: 11px; margin-bottom: 2px; }
+
+    /* Favicon row */
+    .fav-row { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .fav-pill { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border: 1px solid var(--border); background: var(--surface); }
+    .fav-pill .name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; }
+    .fav-pill .size { color: var(--text); font-weight: 700; }
+
+    /* Construction grid overlay */
+    .construction { position: relative; background: var(--surface); border: 1px solid var(--border); padding: 28px; }
+    .construction svg.grid { position: absolute; inset: 28px; pointer-events: none; opacity: 0.45; }
+
+    /* Clear space demo */
+    .clearspace {
+      position: relative;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .clearspace::before, .clearspace::after {
+      content: ''; position: absolute; border: 1px dashed rgba(0,212,255,0.35);
+    }
+    .clearspace::before { inset: 28px; }
+    .clearspace::after  { inset: 60px; }
+
+    /* OG preview frame */
+    .og-frame {
+      border: 1px solid var(--border);
+      padding: 16px;
+      background: #04050A;
+    }
+    .og-frame img { display: block; width: 100%; height: auto; }
+    .og-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .footer { margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+
+    /* Subtle background grid */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- HEAD -->
+    <div class="head">
+      <div>
+        <div class="tag"><span class="pulse" style="display:inline-block;width:6px;height:6px;background:var(--primary);margin-right:8px;vertical-align:middle"></span>BRAND / LOGO SHEET · v01</div>
+        <h1>TuringTrade Identity</h1>
+        <p class="sub">A split-brain mark — organic human on the left, angular machine on the right, divided by a cyan signature. Six variants, full clear-space rules, and a 1200×630 OG image.</p>
+      </div>
+      <div style="text-align:right;">
+        <div class="mono" style="font-size:11px;color:var(--muted);letter-spacing:0.22em;text-transform:uppercase;">Mantle · Hackathon</div>
+        <div class="mono" style="font-size:11px;color:var(--muted);margin-top:6px;">2026-05-16</div>
+      </div>
+    </div>
+
+    <!-- 01 · PRIMARY LOCKUP -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">01</span>
+        <h2>Primary Lockup — Horizontal</h2>
+        <span class="rule"></span>
+        <span class="num">USE / NAVBAR · DECK · DEMO INTRO</span>
+      </div>
+      <div class="specimen cut-br" style="min-height:200px;">
+        <span class="label"><span class="dot"></span> LOCKUP / HORIZONTAL</span>
+        <img src="lockup-horizontal.svg" alt="TuringTrade horizontal lockup" style="max-width:560px;width:100%;" />
+      </div>
+      <div class="caption"><b>brand/lockup-horizontal.svg</b> · 520×120 · clear space = ½ icon width on all sides</div>
+    </section>
+
+    <!-- 02 · STACKED + ICON -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">02</span>
+        <h2>Stacked Lockup &amp; Standalone Icon</h2>
+        <span class="rule"></span>
+        <span class="num">USE / SOCIAL · COVERS · APP ICON</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="specimen cut-br" style="min-height:260px;">
+            <span class="label"><span class="dot"></span> LOCKUP / STACKED</span>
+            <img src="lockup-stacked.svg" alt="TuringTrade stacked lockup" style="max-width:300px;width:100%;" />
+          </div>
+          <div class="caption"><b>brand/lockup-stacked.svg</b> · 360×200</div>
+        </div>
+        <div>
+          <div class="specimen cut-br" style="min-height:260px;">
+            <span class="label"><span class="dot"></span> ICON / STANDALONE</span>
+            <img src="icon.svg" alt="TuringTrade icon" style="width:180px;height:180px;" />
+          </div>
+          <div class="caption"><b>brand/icon.svg</b> · 120×120 viewBox · used at any size</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · MONOCHROME -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">03</span>
+        <h2>Monochrome Variants</h2>
+        <span class="rule"></span>
+        <span class="num">SPLIT LINE STAYS CYAN — ALWAYS</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="specimen bg-bg cut-br" style="min-height:240px;">
+            <span class="label"><span class="dot"></span> MONO / LIGHT · ON DARK</span>
+            <img src="icon-mono-light.svg" alt="Monochrome light" style="width:160px;height:160px;" />
+          </div>
+          <div class="caption"><b>brand/icon-mono-light.svg</b> · for dark backgrounds, slides, video</div>
+        </div>
+        <div>
+          <div class="specimen light cut-br" style="min-height:240px;">
+            <span class="label dark"><span class="dot"></span> MONO / DARK · ON LIGHT</span>
+            <img src="icon-mono-dark.svg" alt="Monochrome dark" style="width:160px;height:160px;" />
+          </div>
+          <div class="caption"><b>brand/icon-mono-dark.svg</b> · for white slides &amp; press</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · FAVICON -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">04</span>
+        <h2>Favicon · Simplified T-split</h2>
+        <span class="rule"></span>
+        <span class="num">READABLE @ 16PX</span>
+      </div>
+      <div class="specimen cut-br" style="justify-content:flex-start; flex-wrap:wrap; gap:24px;">
+        <span class="label"><span class="dot"></span> FAVICON / SCALES</span>
+        <div class="fav-row" style="margin-left:24px;">
+          <div class="fav-pill"><img src="favicon.svg" width="16" height="16" alt=""/><span class="name"><span class="size">16</span> · TAB</span></div>
+          <div class="fav-pill"><img src="favicon.svg" width="24" height="24" alt=""/><span class="name"><span class="size">24</span> · MENU</span></div>
+          <div class="fav-pill"><img src="favicon.svg" width="32" height="32" alt=""/><span class="name"><span class="size">32</span> · BOOKMARK</span></div>
+          <div class="fav-pill"><img src="favicon.svg" width="64" height="64" alt=""/><span class="name"><span class="size">64</span> · MAC</span></div>
+          <div class="fav-pill"><img src="favicon.svg" width="128" height="128" alt=""/><span class="name"><span class="size">128</span> · APP</span></div>
+        </div>
+      </div>
+      <div class="caption"><b>brand/favicon.svg</b> · cyan T-split with orange + purple flanks</div>
+    </section>
+
+    <!-- 05 · COLORS -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">05</span>
+        <h2>Color System</h2>
+        <span class="rule"></span>
+        <span class="num">FIXED · NEVER SWAP</span>
+      </div>
+      <div class="grid-4">
+        <div class="swatch"><div class="chip" style="background:#FF9500"></div><div class="meta"><b>Human</b>#FF9500 · ORG</div></div>
+        <div class="swatch"><div class="chip" style="background:#7B5CFF"></div><div class="meta"><b>AI</b>#7B5CFF · PUR</div></div>
+        <div class="swatch"><div class="chip" style="background:#00D4FF"></div><div class="meta"><b>Signature</b>#00D4FF · CYN</div></div>
+        <div class="swatch"><div class="chip" style="background:#07080F;border:1px solid var(--border);"></div><div class="meta"><b>Bg</b>#07080F · BLK</div></div>
+      </div>
+    </section>
+
+    <!-- 06 · CLEAR SPACE / DON'T -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">06</span>
+        <h2>Clear Space &amp; Misuse</h2>
+        <span class="rule"></span>
+        <span class="num">RULES OF ENGAGEMENT</span>
+      </div>
+      <div class="grid-3">
+        <div>
+          <div class="clearspace cut-br" style="min-height:200px;">
+            <span class="label"><span class="dot"></span> CLEAR SPACE</span>
+            <img src="icon.svg" alt="" style="width:80px;height:80px;"/>
+          </div>
+          <div class="caption">Min clear space = <b>½ icon width</b> on all sides.</div>
+        </div>
+        <div>
+          <div class="specimen cut-br" style="min-height:200px;">
+            <span class="label"><span class="dot" style="background:#FF3366;"></span> NEVER STRETCH</span>
+            <img src="icon.svg" alt="" style="width:160px;height:90px;filter:saturate(0.6) brightness(0.85);"/>
+          </div>
+          <div class="caption" style="color:#FF6688;">Never skew, stretch, or rotate.</div>
+        </div>
+        <div>
+          <div class="specimen cut-br" style="min-height:200px;">
+            <span class="label"><span class="dot" style="background:#FF3366;"></span> NEVER SWAP COLORS</span>
+            <!-- Color swap demo: render with mirror via CSS transform -->
+            <img src="icon.svg" alt="" style="width:120px;height:120px;transform:scaleX(-1);filter:saturate(0.6) brightness(0.85);"/>
+          </div>
+          <div class="caption" style="color:#FF6688;">Orange always left, purple always right.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 · OG IMAGE -->
+    <section class="section">
+      <div class="section-head">
+        <span class="num">07</span>
+        <h2>Open Graph · 1200 × 630</h2>
+        <span class="rule"></span>
+        <span class="num">SOCIAL SHARE PREVIEW</span>
+      </div>
+      <div class="og-frame cut-br">
+        <img src="og-image.png" alt="Open Graph preview"/>
+        <div class="og-meta">
+          <span>brand/og-image.png · 1200×630 · #07080F</span>
+          <span>SHARES AS · X · DISCORD · WARPCAST</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div>© TURING TRADE · BRAND v01</div>
+      <div>BUILT FOR MANTLE</div>
+    </div>
+  </div>
+</body>
+</html>
