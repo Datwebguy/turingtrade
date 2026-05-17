@@ -10,7 +10,8 @@ import {
 // useTradeEvents is used inside useRoundTrades hook below
 import { explorerTx, CONTRACTS } from '../lib/contracts'
 
-const PAIRS = ['WETH/USDC', 'MNT/USDC', 'WBTC/USDC', 'METH/WETH']
+// Must match agent-bot.js and keeper.js
+const PAIRS = ['MNT/USDT', 'ETH/USDT', 'BTC/USDT', 'ARB/USDT', 'OP/USDT']
 
 function Leaderboard({ roundId, addresses, userAddress }) {
   const { data: results } = useParticipants(roundId, addresses)
@@ -72,13 +73,15 @@ function TradePanel({ roundId, myPosition, myTrades }) {
   const handleTrade = async (isBuy) => {
     const amountBps = BigInt(Math.max(1, Math.round(parseFloat(pct || '0') * 100)))
     const log = reasoning.trim() || `${isBuy ? 'BUY' : 'SELL'} ${pair} — ${pct}% allocation`
-    try { await submit(roundId, pair, amountBps, isBuy, log) }
-    catch (e) { console.error(e) }
+    await submit(roundId, pair, amountBps, isBuy, log)
+    // errors propagate to the `error` state from useSubmitTrade and are rendered below
   }
 
-  const tradeCount = myPosition ? Number(myPosition.tradeCount) : 0
-  const roiBps = myPosition ? Number(myPosition.roiBps) : 0
-  const hasFinalRoi = roiBps !== 0
+  const tradeCount  = myPosition ? Number(myPosition.tradeCount) : 0
+  const roiBps      = myPosition ? Number(myPosition.roiBps) : 0
+  // Show final P&L only after the round is closed — not based on whether roiBps is 0
+  // (a participant can legitimately finish with exactly 0%)
+  const hasFinalRoi = state === ROUND_STATE.Closed && !!myPosition?.addr
 
   return (
     <div className="p-4 space-y-3">
@@ -157,7 +160,7 @@ const TRADE_SUBMITTED_EVENT = parseAbiItem(
 function logToItem(log) {
   const trader = log.args.trader ?? ''
   return {
-    id: log.transactionHash ?? Math.random().toString(),
+    id: log.transactionHash ?? `${log.blockHash}-${log.logIndex}`,
     trader,
     who: trader.slice(0, 6) + '…' + trader.slice(-4),
     pair: log.args.pair ?? '',
@@ -170,35 +173,43 @@ function logToItem(log) {
 }
 
 function useRoundTrades(roundId, address) {
-  const [items, setItems] = useState([])
+  const [items, setItems]   = useState([])
   const [loaded, setLoaded] = useState(false)
-  const publicClient = usePublicClient({ chainId: CHAIN.id })
+  const publicClient        = usePublicClient({ chainId: CHAIN.id })
 
-  const fetchLogs = useCallback(async () => {
+  // One-time historical fetch on mount (or when roundId changes)
+  useEffect(() => {
     if (roundId == null || !publicClient) return
-    try {
-      const latest = await publicClient.getBlockNumber()
-      const fromBlock = latest > 50000n ? latest - 50000n : 0n
-      const logs = await publicClient.getLogs({
-        address: CONTRACTS.TuringRound,
-        event: TRADE_SUBMITTED_EVENT,
-        args: { roundId: BigInt(roundId) },
-        fromBlock,
-        toBlock: 'latest',
-      })
-      setItems([...logs].reverse().map(logToItem))
-    } catch (err) {
-      console.error('getLogs failed:', err)
-    } finally {
-      setLoaded(true)
-    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const latest    = await publicClient.getBlockNumber()
+        const fromBlock = latest > 100_000n ? latest - 100_000n : 0n
+        const logs      = await publicClient.getLogs({
+          address:   CONTRACTS.TuringRound,
+          event:     TRADE_SUBMITTED_EVENT,
+          args:      { roundId: BigInt(roundId) },
+          fromBlock,
+          toBlock:   'latest',
+        })
+        if (!cancelled) setItems([...logs].reverse().map(logToItem))
+      } catch (err) {
+        console.error('getLogs failed:', err)
+      } finally {
+        if (!cancelled) setLoaded(true)
+      }
+    })()
+    return () => { cancelled = true }
   }, [roundId, publicClient])
 
-  useEffect(() => {
-    fetchLogs()
-    const interval = setInterval(fetchLogs, 5000)
-    return () => clearInterval(interval)
-  }, [fetchLogs])
+  // Live subscription for new events — no polling
+  useTradeEvents(roundId, (log) => {
+    setItems(prev => {
+      const item = logToItem(log)
+      if (prev.some(t => t.id === item.id)) return prev   // deduplicate
+      return [item, ...prev]
+    })
+  })
 
   const myTrades = address ? items.filter(t => t.trader?.toLowerCase() === address.toLowerCase()) : []
   return { items: items.slice(0, 20), myTrades, loaded }

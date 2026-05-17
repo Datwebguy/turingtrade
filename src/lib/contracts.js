@@ -1,10 +1,10 @@
 // ── Addresses — filled in after deployment ────────────────────────────────
 // Run: npx hardhat run scripts/deploy.js --network mantleSepolia
 export const CONTRACTS = {
-  TuringRound:   '0xb5605cAc85c79a98679A743b8E077a21bC652b92',
-  AgentRegistry: '0xff08093DC2bBFde8a08F05C9c10fe9ae8757632B',
-  ReasoningLog:  '0x41AAb6A7B02D19ED30B49408C98648BBd34E032F',
-  TradeExecutor: '0x83840e612cE85E692CD950E8BD3DcB980Fe44BA2',
+  TuringRound:   '0x5FdD4800B445859DF57B4D987ab12a7C6466FCB3',
+  AgentRegistry: '0x11138917b6Dd0782C8Ef98AC7EBB0c3Bd5706ccE',
+  ReasoningLog:  '0x668AA46d926bA4e5F76EAf2242f3FD3Ffc0F5C09',
+  TradeExecutor: '0x2616442740a423E607A51C164add8072c2A90bC3',
 }
 
 export const IS_TESTNET = true  // flip to false when going mainnet

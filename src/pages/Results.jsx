@@ -92,34 +92,7 @@ function FinalizePanel({ roundId, participants, onFinalized }) {
 
   const handleFinalize = async () => {
     try {
-      setStatus('Fetching trade signals…')
-      const tradeCount = {}
-      for (const addr of participants) tradeCount[addr.toLowerCase()] = 0
-
-      try {
-        const latest = await publicClient.getBlockNumber()
-        const fromBlock = latest > 50000n ? latest - 50000n : 0n
-        const logs = await publicClient.getLogs({
-          address: CONTRACTS.TuringRound,
-          event: TRADE_EVENT,
-          args: { roundId: BigInt(roundId) },
-          fromBlock, toBlock: 'latest',
-        })
-        for (const log of logs) {
-          const t = log.args.trader?.toLowerCase()
-          if (t && tradeCount[t] !== undefined) tradeCount[t]++
-        }
-      } catch { /* use tradeCount = 0 for all if logs fail */ }
-
-      const addrs = participants
-      const roiBpsArr = addrs.map(addr => {
-        const count = tradeCount[addr.toLowerCase()] ?? 0
-        return Math.round((3.5 + count * 1.2) * 100)
-      })
-      const liquidatedArr = addrs.map(() => false)
-
-      setStatus('Submitting results on-chain…')
-      await submitResults(roundId, addrs, roiBpsArr, liquidatedArr)
+      setStatus('This round is handled automatically by the keeper bot. If it has not finalized yet, wait up to 60 seconds for the keeper to detect and submit results.')
     } catch (e) {
       setStatus('')
       console.error(e)

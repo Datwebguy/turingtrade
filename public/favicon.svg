@@ -1,16 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="TuringTrade favicon">
-  
-  <rect width="32" height="32" fill="#07080F"></rect>
-  
-  <rect x="3" y="3" width="12" height="26" fill="#FF9500"></rect>
-  
-  <path d="M17 3 H29 V29 H17 Z" fill="#7B5CFF"></path>
-  
-  <path d="M17 3 L29 3 L29 9 L25 9 L25 5 L17 5 Z" fill="#07080F" opacity="0.18"></path>
-  
-  <rect x="15" y="3" width="2" height="26" fill="#00D4FF"></rect>
-  <rect x="8" y="3" width="16" height="3" fill="#00D4FF"></rect>
-  
-  <rect x="14" y="1" width="4" height="2" fill="#00D4FF"></rect>
-  <rect x="14" y="29" width="4" height="2" fill="#00D4FF"></rect>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="TuringTrade">
+  <rect width="32" height="32" fill="#06050F" rx="6"/>
+  <!-- left half — teal organic -->
+  <path d="M16 3 C12 2.5,8.5 4,6.5 7.5 C4.5 9.5,3 13,4.5 16 C3 19,5 22.5,8 25 C10.5 27.5,13.5 28.5,16 28.5 L16 3Z" stroke="#4DFFEA" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+  <circle cx="9.5" cy="9" r="1" fill="#4DFFEA"/>
+  <circle cx="13" cy="16" r="1" fill="#4DFFEA"/>
+  <circle cx="9" cy="21" r="1" fill="#4DFFEA"/>
+  <!-- right half — red angular -->
+  <path d="M16 3 L20 3 L24 5.5 L27 9 L28 13 L26.5 16 L28 20 L25.5 24.5 L21.5 27.5 L18 28.5 L16 28.5Z" stroke="#FF3366" stroke-width="1.2" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+  <!-- gold split line -->
+  <line x1="16" y1="2.5" x2="16" y2="29.5" stroke="#E8B84B" stroke-width="1.5"/>
+  <circle cx="16" cy="2.5" r="1.2" fill="#E8B84B"/>
+  <circle cx="16" cy="29.5" r="1.2" fill="#E8B84B"/>
 </svg>
