@@ -253,7 +253,7 @@ function LiveFeed({ items, loaded }) {
   )
 }
 
-function EnterPanel({ id, feeEth, enter, isEntering, enteredOk, hasAgent }) {
+function EnterPanel({ id, feeEth, enter, isEntering, enteredOk, hasAgent, enterError }) {
   const [stake, setStake] = useState(feeEth)
   const minFee = parseFloat(feeEth)
   const stakeVal = parseFloat(stake) || 0
@@ -275,6 +275,11 @@ function EnterPanel({ id, feeEth, enter, isEntering, enteredOk, hasAgent }) {
       </div>
       {!valid && stakeVal > 0 && (
         <div className="font-mono text-[10px] text-[#FF3366]">Minimum is {minFee.toFixed(3)} MNT</div>
+      )}
+      {enterError && (
+        <div className="font-mono text-[10px] text-[#FF3366] border border-[#FF3366]/30 bg-[#FF3366]/5 px-2 py-1.5 break-all">
+          {enterError.shortMessage || enterError.message}
+        </div>
       )}
       {enteredOk && <div className="font-mono text-[11px] text-[#39FF14]">Entered! Ready to trade.</div>}
       <div className={`grid gap-2 ${hasAgent ? 'grid-cols-2' : 'grid-cols-1'}`}>
@@ -306,7 +311,7 @@ export default function Arena() {
   const { data: myPosition } = useParticipant(id, address)
   const { data: myAgentId } = useMyAgent()
   const hasAgent = myAgentId != null && myAgentId > 0n
-  const { enter, isPending: isEntering, txHash: enterTx } = useEnterRound()
+  const { enter, isPending: isEntering, txHash: enterTx, error: enterError } = useEnterRound()
   const { isSuccess: enteredOk } = useWaitForTransactionReceipt({ hash: enterTx })
   useRoundFinalizedEvent(id, () => navigate(`/results/${id}`))
   const { items: feedItems, myTrades, loaded: feedLoaded } = useRoundTrades(id, address)
@@ -317,12 +322,13 @@ export default function Arena() {
   const prizeEth = round ? formatEther(round.prizePool) : '0'
   const feeEth   = round ? formatEther(round.entryFee)  : '0.01'
   const endsAt   = round ? Number(round.endTime) * 1000 : Date.now() + 86400000
+  const roundEnded = isLive && Date.now() >= endsAt
   const zeroAddr = '0x0000000000000000000000000000000000000000'
   const isInRound = myPosition && myPosition.addr !== zeroAddr
 
   if (isLoading) {
     return (
-      <div className="h-[calc(100vh-0px)] flex items-center justify-center gap-4">
+      <div className="h-[calc(100vh-56px)] md:h-screen flex items-center justify-center gap-4">
         <ScanLoader className="w-40" />
         <span className="font-mono text-[#6B6589] text-[12px]">Loading round…</span>
       </div>
@@ -331,54 +337,64 @@ export default function Arena() {
 
   if (!round) {
     return (
-      <div className="h-screen flex items-center justify-center font-mono text-[#FF3366]">Round #{id} not found</div>
+      <div className="h-[calc(100vh-56px)] md:h-screen flex items-center justify-center font-mono text-[#FF3366]">Round #{id} not found</div>
     )
   }
 
   return (
-    <div className="h-[calc(100vh-0px)] flex flex-col">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#1F1C3A] shrink-0">
-        <div className="flex items-center gap-4">
-          <span className="font-display text-lg font-bold">Round <span className="text-[#6B6589]">#</span>{id}</span>
+    <div className="h-[calc(100vh-56px)] md:h-screen flex flex-col">
+      <div className="flex flex-wrap items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-[#1F1C3A] shrink-0 gap-2">
+        <div className="flex items-center gap-3">
+          <span className="font-display text-base md:text-lg font-bold">Round <span className="text-[#6B6589]">#</span>{id}</span>
           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono tracking-[0.18em] uppercase border ${isLive ? 'bg-[#FF3366] text-white border-[#FF3366]' : 'text-[#E8B84B] border-[#E8B84B]'}`}>
             {isLive && <span className="relative inline-block w-1.5 h-1.5"><span className="absolute inset-0 bg-white pulse-dot" /></span>}
             {['OPEN','ACTIVE','FINALIZING','CLOSED'][state ?? 0]}
           </span>
         </div>
-        <div className="flex items-center gap-5 font-mono text-[11px] text-[#6B6589]">
+        <div className="flex items-center gap-3 md:gap-5 font-mono text-[11px] text-[#6B6589] flex-wrap">
           <span>Ends <span className="text-[#F0EBE3]"><FlipCountdown endsAt={endsAt} /></span></span>
-          <span>Prize <span className="text-[#E8B84B]">{parseFloat(prizeEth).toFixed(3)} MNT</span></span>
+          <span className="hidden sm:inline">Prize <span className="text-[#E8B84B]">{parseFloat(prizeEth).toFixed(3)} MNT</span></span>
           <span><span className="text-[#F0EBE3]">{participants.length}</span> traders</span>
           {state === ROUND_STATE.Closed && (
             <Link to={`/results/${id}`}
               className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#E8B84B] border border-[#E8B84B]/40 px-2 py-1 hover:bg-[#E8B84B]/10">
-              View Results →
+              Results →
             </Link>
           )}
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden">
         {/* Leaderboard */}
-        <div className="w-[260px] shrink-0 border-r border-[#1F1C3A] flex flex-col">
+        <div className="md:w-[260px] md:shrink-0 border-b md:border-b-0 md:border-r border-[#1F1C3A] flex flex-col">
           <div className="px-4 py-3 border-b border-[#1F1C3A]">
             <SectionTitle live={isLive}>Rankings</SectionTitle>
           </div>
-          <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="md:flex-1 overflow-y-auto no-scrollbar">
             <Leaderboard roundId={id} addresses={participants} userAddress={address} />
           </div>
         </div>
 
         {/* Trade Panel */}
-        <div className="flex-1 flex flex-col border-r border-[#1F1C3A] overflow-y-auto no-scrollbar">
+        <div className="md:flex-1 flex flex-col border-b md:border-b-0 md:border-r border-[#1F1C3A] overflow-y-auto no-scrollbar">
           <div className="p-4 border-b border-[#1F1C3A]">
             <SectionTitle>{isInRound ? 'Your Position' : 'Enter Round'}</SectionTitle>
           </div>
           {!isConnected ? (
             <div className="p-6 font-mono text-[11px] text-[#6B6589] text-center">Connect wallet to trade</div>
+          ) : roundEnded ? (
+            <div className="p-5 space-y-3">
+              <div className="font-mono text-[11px] text-[#E8B84B] border border-[#E8B84B]/30 bg-[#E8B84B]/5 px-3 py-2 flex items-center gap-2">
+                <span className="relative inline-block w-1.5 h-1.5 shrink-0"><span className="absolute inset-0 bg-[#E8B84B] pulse-dot" /></span>
+                Round has ended — keeper is calculating results…
+              </div>
+              <div className="font-mono text-[10px] text-[#6B6589]">
+                Results will be finalized on-chain within ~60 seconds. Check the{' '}
+                <Link to={`/results/${id}`} className="text-[#E8B84B] hover:underline">Results page</Link>.
+              </div>
+            </div>
           ) : !isInRound ? (
-            <EnterPanel id={id} feeEth={feeEth} enter={enter} isEntering={isEntering} enteredOk={enteredOk} hasAgent={hasAgent} />
-
+            <EnterPanel id={id} feeEth={feeEth} enter={enter} isEntering={isEntering} enteredOk={enteredOk} hasAgent={hasAgent} enterError={enterError} />
           ) : isInRound && !isLive ? (
             <div className="p-5 font-mono text-[11px] text-[#6B6589] space-y-2">
               <div>You're entered. Trades open when the round activates.</div>
@@ -392,7 +408,7 @@ export default function Arena() {
         </div>
 
         {/* Live Feed */}
-        <div className="w-[300px] shrink-0 flex flex-col">
+        <div className="md:w-[300px] md:shrink-0 flex flex-col">
           <div className="px-4 py-3 border-b border-[#1F1C3A]">
             <SectionTitle live={isLive}>On-Chain Activity</SectionTitle>
           </div>

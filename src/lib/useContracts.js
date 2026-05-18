@@ -211,6 +211,16 @@ export function useRegisterAgent() {
 
 // ── Reasoning log reads ────────────────────────────────────────────────────
 
+export function useReasoningEntryCount() {
+  return useReadContract({
+    address: CONTRACTS.ReasoningLog,
+    abi: REASONING_LOG_ABI,
+    functionName: 'entryCount',
+    chainId: CHAIN.id,
+    query: { refetchInterval: 15_000 },
+  })
+}
+
 export function useReasoningEntry(entryId) {
   const id = entryId != null && Number.isInteger(Number(entryId)) ? BigInt(entryId) : null
   return useReadContract({

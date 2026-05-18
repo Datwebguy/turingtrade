@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useReasoningEntry } from '../lib/useContracts'
-import { explorerTx, explorerAddress } from '../lib/contracts'
+import { useReasoningEntry, useReasoningEntryCount } from '../lib/useContracts'
+import { explorerAddress } from '../lib/contracts'
 import { ScanLoader } from '../components/ui'
 
 function TypewriterText({ text, speed = 22 }) {
@@ -23,6 +23,70 @@ function TypewriterText({ text, speed = 22 }) {
       {displayed}
       {idx < text.length && <span className="caret bg-[#E8B84B] inline-block w-2 h-[1.1em] align-middle ml-0.5" />}
     </span>
+  )
+}
+
+function LogEntryRow({ id }) {
+  const { data: entry, isLoading } = useReasoningEntry(id)
+  const zeroAddr = '0x0000000000000000000000000000000000000000'
+
+  if (isLoading) {
+    return (
+      <div className="glass cut-card p-4 flex items-center gap-3">
+        <ScanLoader />
+        <span className="font-mono text-[11px] text-[#6B6589]">Entry #{id}…</span>
+      </div>
+    )
+  }
+
+  if (!entry || entry.agent === zeroAddr) return null
+
+  const ts = Number(entry.timestamp) * 1000
+  const preview = (entry.reasoning || '').slice(0, 100) + ((entry.reasoning?.length ?? 0) > 100 ? '…' : '')
+
+  return (
+    <Link to={`/log/${id}`} className="block glass cut-card p-4 hover:border-[#E8B84B]/30 transition-colors">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[11px] text-[#E8B84B]">#{id}</span>
+          <span className="font-mono text-[10px] text-[#6B6589]">Round #{String(entry.roundId)}</span>
+          <span className="font-mono text-[10px] text-[#6B6589]">{entry.agent.slice(0, 6)}…{entry.agent.slice(-4)}</span>
+        </div>
+        <span className="font-mono text-[10px] text-[#6B6589]">{new Date(ts).toLocaleDateString()}</span>
+      </div>
+      <div className="font-mono text-[11px] text-[#F0EBE3]/70 truncate">{preview || '(no reasoning)'}</div>
+    </Link>
+  )
+}
+
+export function LogBrowse() {
+  const { data: rawCount, isLoading: countLoading } = useReasoningEntryCount()
+  const count = rawCount != null ? Number(rawCount) : 0
+  const SHOW  = 20
+  const start = Math.max(0, count - SHOW)
+  const ids   = Array.from({ length: count - start }, (_, i) => start + i).reverse()
+
+  return (
+    <div className="px-6 md:px-10 py-8 max-w-5xl">
+      <div className="mb-6">
+        <div className="text-[10px] font-mono tracking-[0.22em] uppercase text-[#6B6589] mb-1">On-Chain Reasoning Log</div>
+        <h1 className="font-display text-2xl font-bold">Recent Entries</h1>
+      </div>
+      {countLoading && (
+        <div className="flex items-center gap-4">
+          <ScanLoader className="w-40" />
+          <span className="font-mono text-[#6B6589] text-[12px]">Loading entries…</span>
+        </div>
+      )}
+      {!countLoading && count === 0 && (
+        <div className="glass cut-card p-8 text-center font-mono text-[#6B6589] text-sm">
+          No log entries yet — trade signals appear here once agents submit on-chain reasoning.
+        </div>
+      )}
+      <div className="space-y-3">
+        {ids.map(id => <LogEntryRow key={id} id={id} />)}
+      </div>
+    </div>
   )
 }
 

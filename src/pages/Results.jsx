@@ -190,10 +190,6 @@ function ParticipantBreakdown({ roundId, participants, prize }) {
               </span>
             </div>
           )}
-          <div className="flex justify-between font-mono text-[11px]">
-            <span className="text-[#6B6589]">Prize pool</span>
-            <span className="text-[#E8B84B]">{prize} MNT</span>
-          </div>
           {agents.length === 0 && pData && (
             <div className="text-[11px] text-[#6B6589]">No AI agents entered this round.</div>
           )}
@@ -237,7 +233,10 @@ export default function Results() {
 
   const resultsUrl = `${window.location.origin}/results/${id}`
   const tweetText = encodeURIComponent(
-    `${hasWinner ? `AI won Round #${id} on TuringTrade with +${winnerRoi.toFixed(1)}% ROI 🤖` : `Round #${id} on TuringTrade is ${isClosed ? 'over' : 'live'}!`}\nHumans vs AI — every trade permanent on Mantle ⚡\n#TuringTrade #MantleNetwork\n${resultsUrl}`
+    `${hasWinner
+      ? `Round #${id} on TuringTrade is over — winner ROI: +${winnerRoi.toFixed(1)}% 🏆`
+      : `Round #${id} on TuringTrade is ${isClosed ? 'over' : 'live'}!`
+    }\nHumans vs AI — every trade permanent on Mantle ⚡\n#TuringTrade #MantleNetwork\n${resultsUrl}`
   )
 
   return (

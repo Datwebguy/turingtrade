@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useChainGuard, useRoundCount } from '../lib/useContracts'
@@ -40,48 +41,86 @@ export default function Navbar() {
   const { isWrongChain, ensureChain } = useChainGuard()
   const { data: rawCount } = useRoundCount()
   const latestRound = rawCount != null ? Math.max(0, Number(rawCount) - 1) : 0
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const NAV = [
-    { to: '/lobby',                      label: 'LOBBY',        icon: '⊞' },
-    { to: `/arena/${latestRound}`,        label: 'LIVE ARENA',   icon: '⚡' },
-    { to: `/results/${latestRound}`,      label: 'RESULTS',      icon: '⬆' },
-    { to: '/agent/me',                   label: 'MY AGENT',     icon: '⚙' },
-    { to: '/log/0',                      label: 'ON-CHAIN LOG',  icon: '◷' },
+    { to: '/lobby',                 label: 'LOBBY',        icon: '⊞' },
+    { to: `/arena/${latestRound}`,  label: 'LIVE ARENA',   icon: '⚡' },
+    { to: `/results/${latestRound}`,label: 'RESULTS',      icon: '⬆' },
+    { to: '/agent/me',              label: 'MY AGENT',     icon: '⚙' },
+    { to: '/log',                   label: 'ON-CHAIN LOG', icon: '◷' },
   ]
 
+  const NavLinks = ({ onClick }) => NAV.map(({ to, label, icon }) => {
+    const base = '/' + to.split('/')[1]
+    const active = pathname === to || (base !== '/' && pathname.startsWith(base))
+    return (
+      <Link key={label} to={to} onClick={onClick}
+        className={`flex items-center gap-3 px-5 py-3 text-[11px] tracking-[0.18em] font-mono transition-all duration-150
+          ${active ? 'nav-active' : 'text-[#6B6589] hover:text-[#F0EBE3] hover:bg-[#E8B84B]/5'}`}
+      >
+        <span className="text-base leading-none">{icon}</span>
+        {label}
+      </Link>
+    )
+  })
+
+  const WrongChainBtn = ({ onClick }) => isWrongChain ? (
+    <button onClick={() => { ensureChain(); onClick?.() }}
+      className="mx-3 mb-2 flex items-center gap-2 px-3 py-2 font-mono text-[10px] tracking-[0.15em] uppercase border border-[#FF3366]/50 text-[#FF3366] bg-[#FF3366]/5 hover:bg-[#FF3366]/10 transition-colors">
+      <span className="relative inline-block w-1.5 h-1.5"><span className="absolute inset-0 bg-[#FF3366] pulse-dot" /></span>
+      Wrong chain — switch
+    </button>
+  ) : null
+
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-[220px] glass navbar-shimmer border-r border-[#1F1C3A] z-30 flex flex-col">
-      <div className="p-5 pb-4 border-b border-[#1F1C3A]">
-        <Logo small />
-      </div>
-      <nav className="flex-1 py-4 overflow-y-auto no-scrollbar">
-        {NAV.map(({ to, label, icon }) => {
-          const base = '/' + to.split('/')[1]
-          const active = pathname === to || (base !== '/' && pathname.startsWith(base))
-          return (
-            <Link
-              key={label}
-              to={to}
-              className={`flex items-center gap-3 px-5 py-3 text-[11px] tracking-[0.18em] font-mono transition-all duration-150
-                ${active ? 'nav-active' : 'text-[#6B6589] hover:text-[#F0EBE3] hover:bg-[#E8B84B]/5'}`}
-            >
-              <span className="text-base leading-none">{icon}</span>
-              {label}
-            </Link>
-          )
-        })}
-      </nav>
-      {isWrongChain && (
-        <button onClick={ensureChain}
-          className="mx-3 mb-2 flex items-center gap-2 px-3 py-2 font-mono text-[10px] tracking-[0.15em] uppercase border border-[#FF3366]/50 text-[#FF3366] bg-[#FF3366]/5 hover:bg-[#FF3366]/10 transition-colors">
-          <span className="relative inline-block w-1.5 h-1.5"><span className="absolute inset-0 bg-[#FF3366] pulse-dot" /></span>
-          Wrong chain — switch
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-[220px] glass navbar-shimmer border-r border-[#1F1C3A] z-30 flex-col">
+        <div className="p-5 pb-4 border-b border-[#1F1C3A]">
+          <Logo small />
+        </div>
+        <nav className="flex-1 py-4 overflow-y-auto no-scrollbar">
+          <NavLinks />
+        </nav>
+        <WrongChainBtn />
+        <div className="p-4 border-t border-[#1F1C3A]">
+          <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />
+        </div>
+      </aside>
+
+      {/* Mobile top bar */}
+      <header className="md:hidden fixed top-0 left-0 right-0 h-14 glass navbar-shimmer border-b border-[#1F1C3A] z-30 flex items-center justify-between px-4">
+        <button onClick={() => setDrawerOpen(true)} aria-label="Open menu"
+          className="w-8 h-8 flex flex-col justify-center gap-[5px] shrink-0">
+          <span className="block h-0.5 w-6 bg-[#F0EBE3]" />
+          <span className="block h-0.5 w-6 bg-[#F0EBE3]" />
+          <span className="block h-0.5 w-4 bg-[#F0EBE3]" />
         </button>
+        <Logo small />
+        <div className="shrink-0 scale-90 origin-right">
+          <ConnectButton showBalance={false} chainStatus="none" accountStatus="avatar" />
+        </div>
+      </header>
+
+      {/* Mobile drawer */}
+      {drawerOpen && (
+        <>
+          <div className="md:hidden fixed inset-0 bg-black/60 z-40" onClick={() => setDrawerOpen(false)} />
+          <nav className="md:hidden fixed top-0 left-0 bottom-0 w-[240px] glass border-r border-[#1F1C3A] z-50 flex flex-col">
+            <div className="p-5 pb-4 border-b border-[#1F1C3A] flex items-center justify-between">
+              <Logo small />
+              <button onClick={() => setDrawerOpen(false)}
+                className="font-mono text-[#6B6589] hover:text-[#F0EBE3] text-lg leading-none">✕</button>
+            </div>
+            <div className="flex-1 py-4 overflow-y-auto no-scrollbar">
+              <NavLinks onClick={() => setDrawerOpen(false)} />
+            </div>
+            <WrongChainBtn onClick={() => setDrawerOpen(false)} />
+          </nav>
+        </>
       )}
-      <div className="p-4 border-t border-[#1F1C3A]">
-        <ConnectButton showBalance={false} chainStatus="icon" accountStatus="avatar" />
-      </div>
-    </aside>
+    </>
   )
 }
 

@@ -26,7 +26,7 @@ import Roles from './pages/Roles'
 import Lobby from './pages/Lobby'
 import Arena from './pages/Arena'
 import Profile from './pages/Profile'
-import Log from './pages/Log'
+import Log, { LogBrowse } from './pages/Log'
 import Results from './pages/Results'
 
 function AppShell() {
@@ -38,7 +38,7 @@ function AppShell() {
     <>
       <ArenaBackground />
       {!isStandalone && <Navbar />}
-      <div className={`relative z-10 min-h-screen ${!isStandalone ? 'pl-[220px]' : ''}`}>
+      <div className={`relative z-10 min-h-screen ${!isStandalone ? 'pt-14 md:pt-0 md:pl-[220px]' : ''}`}>
         <ErrorBoundary>
         <div key={pathname} className="page-enter page-enter-active">
           <Routes>
@@ -47,6 +47,7 @@ function AppShell() {
             <Route path="/lobby"       element={<Lobby />} />
             <Route path="/arena/:id"   element={<Arena />} />
             <Route path="/agent/:id"   element={<Profile />} />
+            <Route path="/log"          element={<LogBrowse />} />
             <Route path="/log/:txHash" element={<Log />} />
             <Route path="/results/:id" element={<Results />} />
             <Route path="/leaderboard" element={<Lobby />} />

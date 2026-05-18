@@ -12,12 +12,13 @@ function RegisterAgentModal({ onClose }) {
   const navigate = useNavigate()
   const [name, setName]         = useState('')
   const [strategy, setStrategy] = useState('')
-  const { register, isPending, error, txHash } = useRegisterAgent()
-  const { isSuccess, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash })
+  const [hash, setHash]         = useState(undefined)
+  const { register, isPending, error } = useRegisterAgent()
+  const { isSuccess, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash })
 
   useEffect(() => {
     if (isSuccess) {
-      const id = setTimeout(() => navigate('/lobby'), 1500)
+      const id = setTimeout(() => navigate('/lobby'), 2000)
       return () => clearTimeout(id)
     }
   }, [isSuccess, navigate])
@@ -25,8 +26,12 @@ function RegisterAgentModal({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!name.trim()) return
-    try { await register(name.trim(), strategy.trim()) }
-    catch (err) { console.error(err) }
+    try {
+      const txHash = await register(name.trim(), strategy.trim())
+      if (txHash) setHash(txHash)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   if (isSuccess) {
@@ -35,18 +40,25 @@ function RegisterAgentModal({ onClose }) {
         <div className="glass cut-card p-8 text-center max-w-sm">
           <div className="text-5xl mb-4">🤖</div>
           <div className="font-display text-xl font-bold text-[#39FF14] mb-2">Agent Registered!</div>
-          <div className="font-mono text-[11px] text-[#6B6589]">ERC-8004 identity confirmed on Mantle. Redirecting…</div>
+          <div className="font-mono text-[11px] text-[#6B6589]">ERC-8004 identity confirmed on Mantle. Redirecting to lobby…</div>
         </div>
       </div>
     )
   }
+
+  const buttonLabel = isPending
+    ? 'Waiting for wallet…'
+    : isConfirming
+    ? 'Confirming on Mantle…'
+    : 'Mint ERC-8004 Agent →'
 
   return (
     <div className="fixed inset-0 bg-[#06050F]/90 z-50 flex items-center justify-center p-4">
       <div className="glass cut-card p-8 w-full max-w-md">
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-display text-xl font-bold">Register AI Agent</h2>
-          <button onClick={onClose} className="font-mono text-[#6B6589] hover:text-[#F0EBE3] text-lg">✕</button>
+          <button onClick={onClose} disabled={isPending || isConfirming}
+            className="font-mono text-[#6B6589] hover:text-[#F0EBE3] text-lg disabled:opacity-30 disabled:cursor-not-allowed">✕</button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -60,14 +72,20 @@ function RegisterAgentModal({ onClose }) {
               placeholder="e.g. RSI + volume breakout on WETH/USDC pairs"
               className="w-full bg-[#06050F] border border-[#1F1C3A] px-3 py-2.5 font-mono text-sm text-[#F0EBE3] outline-none focus:border-[#E8B84B]/60 resize-none" />
           </div>
+          {isConfirming && hash && (
+            <div className="font-mono text-[11px] text-[#E8B84B] border border-[#E8B84B]/30 bg-[#E8B84B]/5 px-3 py-2 flex items-center gap-2">
+              <span className="relative inline-block w-1.5 h-1.5 shrink-0"><span className="absolute inset-0 bg-[#E8B84B] pulse-dot" /></span>
+              Transaction submitted — waiting for Mantle confirmation…
+            </div>
+          )}
           {error && (
             <div className="font-mono text-[11px] text-[#FF3366] border border-[#FF3366]/30 bg-[#FF3366]/5 px-3 py-2">
               {error.shortMessage || error.message}
             </div>
           )}
-          <button type="submit" disabled={isPending || !name.trim()}
+          <button type="submit" disabled={isPending || isConfirming || !name.trim()}
             className="w-full relative inline-flex items-center justify-center font-display font-semibold uppercase px-6 py-3.5 text-[12px] tracking-[0.2em] bg-[#FF3366] text-white cut-br-sm btn-scan hover:shadow-[0_0_28px_-4px_rgba(255,51,102,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-            <span className="relative z-10">{isPending ? 'Minting on Mantle…' : 'Mint ERC-8004 Agent →'}</span>
+            <span className="relative z-10">{buttonLabel}</span>
           </button>
         </form>
       </div>
