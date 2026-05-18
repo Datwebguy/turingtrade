@@ -63,7 +63,7 @@ function TradeLog({ myTrades }) {
   )
 }
 
-function TradePanel({ roundId, myPosition, myTrades }) {
+function TradePanel({ roundId, myPosition, myTrades, state }) {
   const [pair, setPair]           = useState(PAIRS[0])
   const [pct, setPct]             = useState('10')
   const [reasoning, setReasoning] = useState('')
@@ -387,7 +387,7 @@ export default function Arena() {
               </div>
             </div>
           ) : (
-            <TradePanel roundId={id} myPosition={myPosition} myTrades={myTrades} />
+            <TradePanel roundId={id} myPosition={myPosition} myTrades={myTrades} state={state} />
           )}
         </div>
 
