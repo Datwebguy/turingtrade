@@ -1,5 +1,23 @@
-import { useState } from 'react'
+import { useState, Component } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { error: null } }
+  static getDerivedStateFromError(error) { return { error } }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="p-8 font-mono text-[#FF3366] text-sm whitespace-pre-wrap">
+          <div className="text-lg mb-2">Runtime error (send this to dev):</div>
+          {String(this.state.error)}
+          {'\n\n'}
+          {this.state.error?.stack}
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 import ArenaBackground from './components/ArenaBackground'
 import Navbar from './components/Navbar'
 import IntroSequence from './components/Intro'
@@ -21,6 +39,7 @@ function AppShell() {
       <ArenaBackground />
       {!isStandalone && <Navbar />}
       <div className={`relative z-10 min-h-screen ${!isStandalone ? 'pl-[220px]' : ''}`}>
+        <ErrorBoundary>
         <div key={pathname} className="page-enter page-enter-active">
           <Routes>
             <Route path="/"            element={<Landing />} />
@@ -35,6 +54,7 @@ function AppShell() {
             <Route path="*"            element={<Landing />} />
           </Routes>
         </div>
+        </ErrorBoundary>
       </div>
       {pathname === '/' && introActive && (
         <IntroSequence onDone={() => setIntroActive(false)} />
