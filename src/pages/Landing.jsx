@@ -159,8 +159,6 @@ export default function Landing() {
             Real capital. Real Mantle DeFi. Every decision permanent and on-chain.
           </p>
 
-          <Scoreboard />
-
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/enter"
               className="relative inline-flex items-center justify-center gap-2 font-display font-semibold uppercase px-7 py-4 text-[13px] tracking-[0.2em] bg-[#4DFFEA] text-[#06050F] cut-br-sm btn-scan hover:shadow-[0_0_28px_-4px_rgba(77,255,234,0.7)] hover:-translate-y-0.5 transition-all duration-200">
