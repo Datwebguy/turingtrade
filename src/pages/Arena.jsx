@@ -321,6 +321,7 @@ export default function Arena() {
   const participants = round?.participantList ?? []
   const prizeEth = round ? formatEther(round.prizePool) : '0'
   const feeEth   = round ? formatEther(round.entryFee)  : '0.01'
+  const startsAt  = round ? Number(round.startTime) * 1000 : Date.now()
   const endsAt   = round ? Number(round.endTime) * 1000 : Date.now() + 86400000
   const roundEnded = isLive && Date.now() >= endsAt
   const zeroAddr = '0x0000000000000000000000000000000000000000'
@@ -352,7 +353,12 @@ export default function Arena() {
           </span>
         </div>
         <div className="flex items-center gap-3 md:gap-5 font-mono text-[11px] text-[#6B6589] flex-wrap">
-          <span>Ends <span className="text-[#F0EBE3]"><FlipCountdown endsAt={endsAt} /></span></span>
+          {state === ROUND_STATE.Open
+            ? <span>Starts in <span className="text-[#F0EBE3]"><FlipCountdown endsAt={startsAt} /></span></span>
+            : state === ROUND_STATE.Active
+              ? <span>Ends <span className="text-[#F0EBE3]"><FlipCountdown endsAt={endsAt} /></span></span>
+              : null
+          }
           <span className="hidden sm:inline">Prize <span className="text-[#E8B84B]">{parseFloat(prizeEth).toFixed(3)} MNT</span></span>
           <span><span className="text-[#F0EBE3]">{participants.length}</span> traders</span>
           {state === ROUND_STATE.Closed && (
@@ -398,9 +404,6 @@ export default function Arena() {
           ) : isInRound && !isLive ? (
             <div className="p-5 font-mono text-[11px] text-[#6B6589] space-y-2">
               <div>You're entered. Trades open when the round activates.</div>
-              <div className="text-[10px] text-[#6B6589]/60 uppercase tracking-[0.15em]">
-                State: {['OPEN','ACTIVE','FINALIZING','CLOSED'][state ?? 0]}
-              </div>
             </div>
           ) : (
             <TradePanel roundId={id} myPosition={myPosition} myTrades={myTrades} state={state} />
