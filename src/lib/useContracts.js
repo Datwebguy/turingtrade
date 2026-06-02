@@ -275,6 +275,56 @@ export function useRoundFinalizedEvent(roundId, onFinalized) {
   })
 }
 
+// ── Win rate aggregation (across all closed rounds) ────────────────────────
+
+export function useWinRates() {
+  const { data: rawCount } = useRoundCount()
+  const roundCount = rawCount != null ? Number(rawCount) : 0
+
+  const roundContracts = Array.from({ length: roundCount }, (_, i) => ({
+    address: CONTRACTS.TuringRound,
+    abi: TURING_ROUND_ABI,
+    functionName: 'getRound',
+    args: [BigInt(i)],
+    chainId: CHAIN.id,
+  }))
+
+  const { data: rounds } = useReadContracts({
+    contracts: roundContracts,
+    query: { enabled: roundCount > 0, refetchInterval: 30_000 },
+  })
+
+  const zeroAddr = '0x0000000000000000000000000000000000000000'
+  const closedWithWinner = (rounds ?? [])
+    .map((r, i) => ({ round: r.result, idx: i }))
+    .filter(({ round }) =>
+      round && Number(round.state) === 3 &&
+      round.winner && round.winner !== zeroAddr
+    )
+
+  const winnerContracts = closedWithWinner.map(({ round, idx }) => ({
+    address: CONTRACTS.TuringRound,
+    abi: TURING_ROUND_ABI,
+    functionName: 'getParticipant',
+    args: [BigInt(idx), round.winner],
+    chainId: CHAIN.id,
+  }))
+
+  const { data: winnerData } = useReadContracts({
+    contracts: winnerContracts,
+    query: { enabled: closedWithWinner.length > 0 },
+  })
+
+  const aiWins    = (winnerData ?? []).filter(w => w.result?.isAI === true).length
+  const humanWins = (winnerData ?? []).filter(w => w.result?.isAI === false).length
+  const total = aiWins + humanWins
+
+  if (total === 0) return { aiPct: null, humanPct: null, total: 0 }
+  const aiPct    = Math.round((aiWins / total) * 100)
+  const humanPct = 100 - aiPct
+  return { aiPct, humanPct, total }
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 export const ROUND_STATE       = { Open: 0, Active: 1, Finalizing: 2, Closed: 3 }

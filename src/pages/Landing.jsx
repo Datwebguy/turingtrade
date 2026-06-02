@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Card } from '../components/ui'
 import { Logo } from '../components/Navbar'
-import { useRoundCount, useRound } from '../lib/useContracts'
+import { useRoundCount, useRound, useWinRates } from '../lib/useContracts'
 import { formatEther } from 'viem'
 
 function HeroHeadline() {
@@ -40,12 +40,23 @@ function Scoreboard() {
   const prizePool = round ? parseFloat(formatEther(round.prizePool)).toFixed(3) : '—'
   const roundLabel = roundNum != null ? `Round #${latestId}` : 'Loading…'
 
+  const { aiPct, humanPct, total } = useWinRates()
+  const hasRealData = total > 0
+  const hPct = hasRealData ? humanPct : 50
+  const aPct = hasRealData ? aiPct : 50
+
   const [w, setW] = useState({ h: 0, a: 0 })
-  useEffect(() => { const id = setTimeout(() => setW({ h: 34, a: 66 }), 250); return () => clearTimeout(id) }, [])
+  useEffect(() => {
+    const id = setTimeout(() => setW({ h: hPct, a: aPct }), 250)
+    return () => clearTimeout(id)
+  }, [hPct, aPct])
+
   return (
     <div className="mt-10 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-2 font-mono text-[10px] tracking-[0.22em] uppercase">
-        <span className="text-[#6B6589]">Human vs AI Win Rate</span>
+        <span className="text-[#6B6589]">
+          Human vs AI Win Rate{hasRealData ? ` — ${total} round${total !== 1 ? 's' : ''}` : ''}
+        </span>
         <span className="text-[#6B6589] flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 bg-[#39FF14] inline-block" style={{ boxShadow: '0 0 6px rgba(57,255,20,0.7)' }} />
           {roundLabel}
@@ -54,7 +65,9 @@ function Scoreboard() {
       <div className="flex items-center gap-3">
         <div className="shrink-0 flex items-center gap-2">
           <span className="text-[#4DFFEA] text-xs">👤</span>
-          <span className="font-mono text-sm text-[#4DFFEA] tabular-nums w-[42px] text-right">34%</span>
+          <span className="font-mono text-sm text-[#4DFFEA] tabular-nums w-[42px] text-right">
+            {hasRealData ? `${hPct}%` : '—'}
+          </span>
         </div>
         <div className="relative flex-1 h-2 border border-[#1F1C3A] bg-[#06050F] overflow-hidden">
           <div className="absolute inset-y-0 left-0 bg-[#4DFFEA] transition-[width] duration-[1400ms] ease-out" style={{ width: `${w.h}%`, boxShadow: '0 0 12px rgba(77,255,234,0.55)' }} />
@@ -62,16 +75,26 @@ function Scoreboard() {
           <div className="absolute top-0 bottom-0 left-1/2 w-px bg-[#06050F]/80" />
         </div>
         <div className="shrink-0 flex items-center gap-2">
-          <span className="font-mono text-sm text-[#FF3366] tabular-nums w-[42px]">66%</span>
+          <span className="font-mono text-sm text-[#FF3366] tabular-nums w-[42px]">
+            {hasRealData ? `${aPct}%` : '—'}
+          </span>
           <span className="text-[#FF3366] text-xs">🤖</span>
         </div>
       </div>
       <div className="mt-2 flex items-center justify-between font-mono text-[10px] text-[#6B6589]">
-        <span>HUMANS <span className="text-[#4DFFEA]">34%</span></span>
-        <span className="opacity-50">·</span>
-        <span>{participantCount > 0 ? `${participantCount} participants` : 'Be the first to compete'}</span>
-        <span className="opacity-50">·</span>
-        <span>AI <span className="text-[#FF3366]">66%</span></span>
+        {hasRealData ? (
+          <>
+            <span>HUMANS <span className="text-[#4DFFEA]">{hPct}%</span></span>
+            <span className="opacity-50">·</span>
+            <span>{participantCount > 0 ? `${participantCount} participants` : 'Be the first to compete'}</span>
+            <span className="opacity-50">·</span>
+            <span>AI <span className="text-[#FF3366]">{aPct}%</span></span>
+          </>
+        ) : (
+          <span className="w-full text-center">
+            {participantCount > 0 ? `${participantCount} participants` : 'Be the first to compete — no closed rounds yet'}
+          </span>
+        )}
       </div>
       {prizePool !== '—' && parseFloat(prizePool) > 0 && (
         <div className="mt-3 flex items-center justify-center gap-2 font-mono text-[11px] text-[#E8B84B]">
@@ -192,9 +215,9 @@ export default function Landing() {
         <footer className="max-w-7xl mx-auto pb-10 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-mono tracking-[0.2em] uppercase text-[#6B6589] border-t border-[#1F1C3A]/60 pt-6">
           <div>© TURING TRADE · Built on Mantle</div>
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-[#F0EBE3]">DOCS</a>
-            <a href="#" className="hover:text-[#F0EBE3]">CONTRACTS</a>
-            <a href="#" className="hover:text-[#F0EBE3]">DISCORD</a>
+            <span className="opacity-30 cursor-default">DOCS</span>
+            <a href={`https://explorer.sepolia.mantle.xyz/address/0x5FdD4800B445859DF57B4D987ab12a7C6466FCB3`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F0EBE3]">CONTRACTS ↗</a>
+            <span className="opacity-30 cursor-default">DISCORD</span>
           </div>
         </footer>
       </main>
