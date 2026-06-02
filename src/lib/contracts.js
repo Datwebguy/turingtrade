@@ -28,6 +28,9 @@ export const TURING_ROUND_ABI = [
   { name: 'getParticipant',   type: 'function', stateMutability: 'view',     inputs: [{ name: 'roundId', type: 'uint256' }, { name: 'addr', type: 'address' }],        outputs: [{ type: 'tuple', components: [{ name: 'addr', type: 'address' }, { name: 'isAI', type: 'bool' }, { name: 'roiBps', type: 'int256' }, { name: 'tradeCount', type: 'uint256' }, { name: 'liquidated', type: 'bool' }, { name: 'claimed', type: 'bool' }] }] },
   // writes
   { name: 'owner',            type: 'function', stateMutability: 'view',       inputs: [],                                                                              outputs: [{ type: 'address' }] },
+  { name: 'createRound',     type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'entryFee', type: 'uint256' }, { name: 'startTime', type: 'uint256' }, { name: 'endTime', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
+  { name: 'activateRound',   type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'roundId', type: 'uint256' }], outputs: [] },
+  { name: 'topUpPrize',      type: 'function', stateMutability: 'payable',    inputs: [{ name: 'roundId', type: 'uint256' }], outputs: [] },
   { name: 'enter',            type: 'function', stateMutability: 'payable',  inputs: [{ name: 'roundId', type: 'uint256' }, { name: 'isAI', type: 'bool' }],           outputs: [] },
   { name: 'submitTrade',      type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'roundId', type: 'uint256' }, { name: 'pair', type: 'string' }, { name: 'amountBps', type: 'int256' }, { name: 'isBuy', type: 'bool' }, { name: 'reasoning', type: 'string' }], outputs: [{ type: 'uint256' }] },
   { name: 'submitResults',    type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'roundId', type: 'uint256' }, { name: 'addrs', type: 'address[]' }, { name: 'roiBpsArr', type: 'int256[]' }, { name: 'liquidatedArr', type: 'bool[]' }], outputs: [] },

@@ -117,6 +117,27 @@ export function useContractOwner() {
   })
 }
 
+export function useCreateRound() {
+  const { data: txHash, writeContractAsync, isPending, error } = useWriteContract()
+  const { ensureChain } = useChainGuard()
+
+  const create = async (entryFeeMnt, durationHours) => {
+    await ensureChain()
+    const now       = BigInt(Math.floor(Date.now() / 1000))
+    const startTime = now + 60n
+    const endTime   = startTime + BigInt(Math.round(durationHours * 3600))
+    return writeContractAsync({
+      address: CONTRACTS.TuringRound,
+      abi: TURING_ROUND_ABI,
+      functionName: 'createRound',
+      args: [parseEther(String(entryFeeMnt)), startTime, endTime],
+      chainId: CHAIN.id,
+    })
+  }
+
+  return { create, txHash, isPending, error }
+}
+
 export function useSubmitResults() {
   const { data: txHash, writeContractAsync, isPending, error } = useWriteContract()
   const { ensureChain } = useChainGuard()

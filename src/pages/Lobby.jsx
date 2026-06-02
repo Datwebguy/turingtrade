@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatEther } from 'viem'
-import { useAccount } from 'wagmi'
+import { useAccount, useWaitForTransactionReceipt } from 'wagmi'
 import { Card, Badge, FlipCountdown, StatBox, SectionTitle, ScanLoader } from '../components/ui'
-import { useRoundCount, useRound, useParticipant, useTradeEvents, ROUND_STATE } from '../lib/useContracts'
+import { useRoundCount, useRound, useParticipant, useTradeEvents, useContractOwner, useCreateRound, ROUND_STATE } from '../lib/useContracts'
 import { explorerTx } from '../lib/contracts'
 
 function StatusBadge({ state, startTime }) {
@@ -169,8 +169,53 @@ function LiveFeed({ roundId }) {
   )
 }
 
+function AdminCreateRound({ onCreated }) {
+  const { address } = useAccount()
+  const { data: owner } = useContractOwner()
+  const { create, txHash, isPending, error } = useCreateRound()
+  const { isSuccess } = useWaitForTransactionReceipt({ hash: txHash })
+  const [fee, setFee]       = useState('0.1')
+  const [hours, setHours]   = useState('1')
+
+  const isOwner = owner && address && owner.toLowerCase() === address.toLowerCase()
+  if (!isOwner) return null
+
+  if (isSuccess) {
+    onCreated?.()
+    return (
+      <div className="glass cut-card p-5 mb-4 border border-[#39FF14]/30 bg-[#39FF14]/5 font-mono text-[11px] text-[#39FF14]">
+        Round created on-chain ✓ — it will appear below in a moment.
+      </div>
+    )
+  }
+
+  return (
+    <div className="glass cut-card p-5 mb-4 border border-[#E8B84B]/30">
+      <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#E8B84B] mb-3">Admin — Create New Round</div>
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#6B6589] mb-1">Entry Fee (MNT)</div>
+          <input type="number" min="0.001" step="0.01" value={fee} onChange={e => setFee(e.target.value)}
+            className="w-28 bg-[#06050F] border border-[#1F1C3A] px-3 py-2 font-mono text-sm text-[#F0EBE3] outline-none focus:border-[#E8B84B]/60" />
+        </div>
+        <div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#6B6589] mb-1">Duration (hours)</div>
+          <input type="number" min="0.1" step="0.5" value={hours} onChange={e => setHours(e.target.value)}
+            className="w-28 bg-[#06050F] border border-[#1F1C3A] px-3 py-2 font-mono text-sm text-[#F0EBE3] outline-none focus:border-[#E8B84B]/60" />
+        </div>
+        <button onClick={() => create(fee, parseFloat(hours))} disabled={isPending}
+          className="relative inline-flex items-center justify-center font-display font-semibold uppercase px-5 py-2.5 text-[11px] tracking-[0.18em] bg-[#E8B84B] text-[#06050F] cut-br-sm btn-scan hover:shadow-[0_0_28px_-4px_rgba(232,184,75,0.7)] transition-all duration-200 disabled:opacity-50">
+          <span className="relative z-10">{isPending ? 'Creating…' : '+ Create Round →'}</span>
+        </button>
+      </div>
+      {error && <div className="font-mono text-[10px] text-[#FF3366] mt-2">{error.shortMessage || error.message}</div>}
+      <div className="font-mono text-[9px] text-[#6B6589] mt-2">Starts in 60 seconds · keeper bot will activate and finalize automatically</div>
+    </div>
+  )
+}
+
 export default function Lobby() {
-  const { data: rawCount, isLoading: countLoading, isError: countError } = useRoundCount()
+  const { data: rawCount, isLoading: countLoading, isError: countError, refetch } = useRoundCount()
   const roundCount = rawCount != null ? Number(rawCount) : 0
 
   const roundIds = Array.from({ length: roundCount }, (_, i) => i)
@@ -194,6 +239,8 @@ export default function Lobby() {
         </Link>
       </div>
 
+      <AdminCreateRound onCreated={() => setTimeout(refetch, 4000)} />
+
       <div className="flex flex-col gap-4">
         {countLoading && (
           <div className="glass cut-card p-8 text-center">
@@ -208,7 +255,7 @@ export default function Lobby() {
         )}
         {!countLoading && !countError && roundCount === 0 && (
           <div className="glass cut-card p-8 text-center font-mono text-[#6B6589] text-sm">
-            No rounds active yet.
+            No rounds yet — create one above to get started.
           </div>
         )}
         {roundIds.map(id => <RoundRow key={id} roundId={id} />)}
