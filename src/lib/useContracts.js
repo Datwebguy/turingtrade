@@ -296,6 +296,33 @@ export function useRoundFinalizedEvent(roundId, onFinalized) {
   })
 }
 
+// ── Find the latest round matching a given state ───────────────────────────
+// Checks up to the 10 most recent rounds so the navbar always lands somewhere useful.
+
+export function useLatestRoundIdByState(targetState) {
+  const { data: rawCount } = useRoundCount()
+  const count = rawCount != null ? Number(rawCount) : 0
+  const limit = Math.min(count, 10)
+  const ids   = Array.from({ length: limit }, (_, i) => count - 1 - i).filter(id => id >= 0)
+
+  const { data: rounds } = useReadContracts({
+    contracts: ids.map(id => ({
+      address: CONTRACTS.TuringRound,
+      abi: TURING_ROUND_ABI,
+      functionName: 'getRound',
+      args: [BigInt(id)],
+      chainId: CHAIN.id,
+    })),
+    query: { enabled: limit > 0, refetchInterval: 15_000 },
+  })
+
+  if (!rounds) return null
+  for (let i = 0; i < ids.length; i++) {
+    if (rounds[i]?.result && Number(rounds[i].result.state) === targetState) return ids[i]
+  }
+  return null
+}
+
 // ── Win rate aggregation (across all closed rounds) ────────────────────────
 
 export function useWinRates() {

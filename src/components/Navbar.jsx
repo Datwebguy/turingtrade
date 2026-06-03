@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { useChainGuard, useRoundCount } from '../lib/useContracts'
+import { useChainGuard, useLatestRoundIdByState, ROUND_STATE } from '../lib/useContracts'
 
 function Logo({ small = false }) {
   return (
@@ -39,19 +39,19 @@ const NAV_ITEMS = [
 export default function Navbar() {
   const { pathname } = useLocation()
   const { isWrongChain, ensureChain } = useChainGuard()
-  const { data: rawCount } = useRoundCount()
-  const latestRound = rawCount != null ? Math.max(0, Number(rawCount) - 1) : 0
+  const activeRoundId = useLatestRoundIdByState(ROUND_STATE.Active)
+  const closedRoundId = useLatestRoundIdByState(ROUND_STATE.Closed)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const NAV = [
-    { to: '/lobby',                 label: 'LOBBY',        icon: '⊞' },
-    { to: `/arena/${latestRound}`,  label: 'LIVE ARENA',   icon: '⚡' },
-    { to: `/results/${latestRound}`,label: 'RESULTS',      icon: '⬆' },
-    { to: '/agent/me',              label: 'MY AGENT',     icon: '⚙' },
-    { to: '/log',                   label: 'ON-CHAIN LOG', icon: '◷' },
+    { to: '/lobby',                                                      label: 'LOBBY',        icon: '⊞' },
+    { to: activeRoundId != null ? `/arena/${activeRoundId}` : '/lobby', label: 'LIVE ARENA',   icon: '⚡', live: activeRoundId != null },
+    { to: closedRoundId != null ? `/results/${closedRoundId}` : '/lobby', label: 'RESULTS',    icon: '⬆' },
+    { to: '/agent/me',                                                   label: 'MY AGENT',     icon: '⚙' },
+    { to: '/log',                                                        label: 'ON-CHAIN LOG', icon: '◷' },
   ]
 
-  const NavLinks = ({ onClick }) => NAV.map(({ to, label, icon }) => {
+  const NavLinks = ({ onClick }) => NAV.map(({ to, label, icon, live }) => {
     const base = '/' + to.split('/')[1]
     const active = pathname === to || (base !== '/' && pathname.startsWith(base))
     return (
@@ -61,6 +61,11 @@ export default function Navbar() {
       >
         <span className="text-base leading-none">{icon}</span>
         {label}
+        {live && (
+          <span className="relative inline-flex w-1.5 h-1.5 ml-auto">
+            <span className="absolute inset-0 bg-[#FF3366] pulse-dot" />
+          </span>
+        )}
       </Link>
     )
   })

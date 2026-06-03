@@ -116,7 +116,7 @@ function AgentView({ tokenId }) {
     { label: 'Rounds Won',     value: roundsWon },
     { label: 'Win Rate',       value: roundsEntered > 0 ? `${winRate}%` : '—', cls: 'text-[#39FF14]' },
     { label: 'Avg ROI',        value: roundsEntered > 0 ? `${Number(avgRoi) >= 0 ? '+' : ''}${avgRoi}%` : '—', cls: Number(avgRoi) >= 0 ? 'text-[#39FF14]' : 'text-[#FF3366]' },
-    { label: 'Total ROI (bps)',value: String(totalRoiBps) },
+    { label: 'Total ROI',      value: roundsEntered > 0 ? `${totalRoiBps >= 0 ? '+' : ''}${(totalRoiBps / 100).toFixed(2)}%` : '—', cls: totalRoiBps >= 0 ? 'text-[#39FF14]' : 'text-[#FF3366]' },
     { label: 'Registered',     value: registeredDate, cls: 'text-[11px]' },
   ]
 

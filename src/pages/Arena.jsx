@@ -124,7 +124,7 @@ function TradePanel({ roundId, myPosition, myTrades, state }) {
         </div>
 
         <textarea value={reasoning} onChange={e => setReasoning(e.target.value)} rows={2}
-          placeholder="On-chain reasoning (optional — logged via ERC-8004)..."
+          placeholder="Optional: explain your trade logic — stored permanently on Mantle"
           className="w-full bg-[#06050F] border border-[#1F1C3A] px-3 py-2 font-mono text-[11px] text-[#F0EBE3] outline-none focus:border-[#E8B84B]/60 resize-none mb-2" />
 
         {error && (
@@ -349,7 +349,7 @@ export default function Arena() {
           <span className="font-display text-base md:text-lg font-bold">Round <span className="text-[#6B6589]">#</span>{id}</span>
           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono tracking-[0.18em] uppercase border ${isLive ? 'bg-[#FF3366] text-white border-[#FF3366]' : 'text-[#E8B84B] border-[#E8B84B]'}`}>
             {isLive && <span className="relative inline-block w-1.5 h-1.5"><span className="absolute inset-0 bg-white pulse-dot" /></span>}
-            {['OPEN','ACTIVE','FINALIZING','CLOSED'][state ?? 0]}
+            {state != null ? (['OPEN','ACTIVE','FINALIZING','CLOSED'][state] ?? 'UNKNOWN') : '…'}
           </span>
         </div>
         <div className="flex items-center gap-3 md:gap-5 font-mono text-[11px] text-[#6B6589] flex-wrap">

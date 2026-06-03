@@ -7,11 +7,18 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.error) {
       return (
-        <div className="p-8 font-mono text-[#FF3366] text-sm whitespace-pre-wrap">
-          <div className="text-lg mb-2">Runtime error (send this to dev):</div>
-          {String(this.state.error)}
-          {'\n\n'}
-          {this.state.error?.stack}
+        <div className="min-h-screen flex items-center justify-center p-8">
+          <div className="glass cut-card p-10 max-w-md w-full text-center">
+            <div className="text-5xl mb-4">⚠</div>
+            <h2 className="font-display text-xl font-bold text-[#FF3366] mb-2">Something went wrong</h2>
+            <p className="font-mono text-[11px] text-[#6B6589] mb-6">
+              An unexpected error occurred. Try refreshing the page — if it keeps happening, check your wallet connection and network.
+            </p>
+            <button onClick={() => window.location.reload()}
+              className="relative inline-flex items-center justify-center font-display font-semibold uppercase px-6 py-3 text-[12px] tracking-[0.18em] bg-[#E8B84B] text-[#06050F] cut-br-sm hover:shadow-[0_0_28px_-4px_rgba(232,184,75,0.7)] transition-all duration-200">
+              Refresh Page →
+            </button>
+          </div>
         </div>
       )
     }
@@ -32,7 +39,10 @@ import Results from './pages/Results'
 function AppShell() {
   const { pathname } = useLocation()
   const isStandalone = pathname === '/' || pathname === '/enter'
-  const [introActive, setIntroActive] = useState(pathname === '/')
+  const [introActive, setIntroActive] = useState(() => {
+    if (pathname !== '/') return false
+    try { return !sessionStorage.getItem('tt-intro-seen') } catch { return true }
+  })
 
   return (
     <>
@@ -50,15 +60,16 @@ function AppShell() {
             <Route path="/log"          element={<LogBrowse />} />
             <Route path="/log/:txHash" element={<Log />} />
             <Route path="/results/:id" element={<Results />} />
-            <Route path="/leaderboard" element={<Lobby />} />
-            <Route path="/history"     element={<Lobby />} />
             <Route path="*"            element={<Landing />} />
           </Routes>
         </div>
         </ErrorBoundary>
       </div>
       {pathname === '/' && introActive && (
-        <IntroSequence onDone={() => setIntroActive(false)} />
+        <IntroSequence onDone={() => {
+          try { sessionStorage.setItem('tt-intro-seen', '1') } catch {}
+          setIntroActive(false)
+        }} />
       )}
     </>
   )
