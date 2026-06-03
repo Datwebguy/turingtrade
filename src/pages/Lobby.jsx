@@ -249,8 +249,16 @@ export default function Lobby() {
           </div>
         )}
         {countError && (
-          <div className="glass cut-card p-8 text-center font-mono text-[#FF3366] text-sm">
-            Failed to reach Mantle Sepolia — check your network or RPC connection.
+          <div className="glass cut-card p-8 text-center space-y-3">
+            <div className="font-mono text-[#FF3366] text-sm">Could not reach Mantle Sepolia RPC.</div>
+            <div className="font-mono text-[11px] text-[#6B6589]">
+              The public endpoint may be rate-limited. Try refreshing, or add a custom RPC via{' '}
+              <code className="text-[#E8B84B]">VITE_RPC_SEPOLIA_URL</code> in your .env.local
+            </div>
+            <button onClick={() => refetch()}
+              className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.16em] uppercase px-4 py-2 border border-[#E8B84B]/50 text-[#E8B84B] hover:bg-[#E8B84B]/10 transition-colors">
+              ↺ Retry
+            </button>
           </div>
         )}
         {!countLoading && !countError && roundCount === 0 && (
